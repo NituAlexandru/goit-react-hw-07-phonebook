@@ -1,12 +1,11 @@
-import React from 'react';
-
-import propTypes from 'prop-types';
-import styles from './ContactItem.module.css';
+import React from "react";
+import propTypes from "prop-types";
+import styles from "./ContactItem.module.css";
 
 const ContactItem = ({ contact, onDeleteContact }) => (
   <li className={styles.listItem}>
     <p>
-      {contact.name}: {contact.number}
+      {contact.name}: {contact.phone}
     </p>
     <button
       type="button"
@@ -22,7 +21,7 @@ ContactItem.propTypes = {
   contact: propTypes.shape({
     id: propTypes.string.isRequired,
     name: propTypes.string.isRequired,
-    number: propTypes.string.isRequired,
+    phone: propTypes.string.isRequired,
   }).isRequired,
   onDeleteContact: propTypes.func.isRequired,
 };

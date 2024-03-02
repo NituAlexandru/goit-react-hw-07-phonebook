@@ -1,20 +1,27 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { nanoid } from "nanoid";
 import ContactForm from "../src/components/ContactForm/ContactForm";
 import ContactList from "../src/components/ContactList/ContactList";
 import Filter from "../src/components/Filter/Filter";
 import Notiflix from "notiflix";
 import styles from "./App.module.css";
-import { addContact, deleteContact } from "../src/redux/contactsSlice";
+import {
+  fetchContacts,
+  addContact,
+  deleteContact,
+} from "../src/redux/contactsSlice";
 import { setFilter } from "../src/redux/filterSlice";
 
 const App = () => {
-  const contacts = useSelector((state) => state.contacts);
+  const { contacts, status } = useSelector((state) => state.contacts);
   const filter = useSelector((state) => state.filter);
   const dispatch = useDispatch();
 
-  const handleAddContact = (name, number) => {
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
+
+  const handleAddContact = (name, phone) => {
     const normalizedInputName = name.toLowerCase();
     const isContactExist = contacts.some(
       (contact) => contact.name.toLowerCase() === normalizedInputName
@@ -26,9 +33,8 @@ const App = () => {
     }
 
     const newContact = {
-      id: nanoid(),
       name,
-      number,
+      phone,
     };
 
     dispatch(addContact(newContact));
@@ -37,7 +43,7 @@ const App = () => {
 
   const handleDeleteContact = (contactId) => {
     dispatch(deleteContact(contactId));
-    Notiflix.Notify.success("Contact deleted successfully");
+    Notiflix.Notify.success("Contact deleted successfully.");
   };
 
   const handleFilterChange = (event) => {
@@ -45,11 +51,12 @@ const App = () => {
   };
 
   const getFilteredContacts = () => {
+    if (!contacts || !Array.isArray(contacts)) return [];
     const lowercasedFilter = filter.toLowerCase();
     return contacts.filter(
       (contact) =>
         contact.name.toLowerCase().includes(lowercasedFilter) ||
-        contact.number.includes(filter)
+        contact.phone.includes(lowercasedFilter)
     );
   };
 
@@ -60,6 +67,7 @@ const App = () => {
       <h1 className={styles.title}>Phonebook</h1>
       <ContactForm onAddContact={handleAddContact} />
       <h2>Contacts</h2>
+      {status === "loading" && <p>Loading...</p>}
       <Filter value={filter} onChange={handleFilterChange} />
       <ContactList
         contacts={filteredContacts}
