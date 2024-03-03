@@ -1,64 +1,89 @@
-import React, { useState } from "react";
-import propTypes from "prop-types";
-import styles from "./ContactForm.module.css";
+import React, { useState } from 'react';
+import Button from '../button/Button';
+import styles from './ContactForm.module.css';
+import Notiflix from 'notiflix';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact } from '../../redux/operations';
+import { selectContacts } from '../../redux/selectors';
 
-const ContactForm = ({ onAddContact }) => {
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
+const ContactForm = () => {
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
+  const dispatch = useDispatch();
+  const contacts = useSelector(selectContacts);
 
-    switch (name) {
-      case "name":
-        setName(value.replace(/[^a-zA-Z '-]/g, ""));
-        break;
-      case "phone":
-        setPhone(value.replace(/[^\d+() -]/g, ""));
-        break;
-      default:
-        break;
+  const handleNameChange = evt => {
+    const newTextValue = evt.target.value.replace(/[^a-zA-Z\s'-]/g, '');
+    setName(newTextValue);
+  };
+
+  const handlePhoneChange = e => {
+    const newPhoneValue = e.target.value.replace(
+      /[^+\d\s().-]|^[\s().-]+|(?<=\d)[+]|\b[+]\b/g,
+      ''
+    );
+    setPhone(newPhoneValue);
+  };
+
+  const handleAddButtonClick = () => {
+    const nameExists = contacts.some(
+      contact => contact.name.toLowerCase() === name.toLowerCase()
+    );
+    const phoneExists = contacts.some(contact => contact.phone === phone);
+
+    if (nameExists) {
+      Notiflix.Notify.failure(`${name} is already in contacts!`);
+    } else if (phoneExists) {
+      Notiflix.Notify.failure(`${phone} is already in contacts!`);
+    } else if (name.trim() !== '' && phone.trim() !== '') {
+      dispatch(
+        addContact({
+          name: name,
+          phone: phone,
+        })
+      );
+      setName('');
+      setPhone('');
+      Notiflix.Notify.success(`${name} was added to contacts.`);
     }
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    onAddContact(name, phone);
-    setName("");
-    setPhone("");
-  };
-
   return (
-    <form onSubmit={handleSubmit} className={styles.form}>
+    <form className={styles.form}>
       <label className={styles.label}>
-        <p>Name: </p>
+        Name:
         <input
+          className={styles.input}
           type="text"
           name="name"
-          pattern="^[a-zA-Z]+(([' -][a-zA-Z ])?[a-zA-Z]*)*$"
+          placeholder="Name and surname"
           title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
           required
           value={name}
-          onChange={handleChange}
+          onChange={handleNameChange}
         />
-        <p>Phone: </p>
+      </label>
+
+      <label className={styles.label}>
+        Phone:
         <input
+          className={styles.input}
           type="tel"
           name="phone"
-          pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
+          placeholder="Telephone number"
           title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
           required
           value={phone}
-          onChange={handleChange}
+          onChange={handlePhoneChange}
         />
       </label>
-      <button type="submit">Add contact</button>
+
+      <Button type="button" action={handleAddButtonClick}>
+        Add contact
+      </Button>
     </form>
   );
-};
-
-ContactForm.propTypes = {
-  onAddContact: propTypes.func.isRequired,
 };
 
 export default ContactForm;

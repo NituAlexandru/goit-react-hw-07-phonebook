@@ -1,0 +1,17 @@
+.label {
+  margin-bottom: 10px;
+  padding: 8px;
+  border-radius: 4px;
+  outline: none;
+}
+.input {
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  padding: 5px;
+}
+.form {
+  margin-bottom: 15px;
+}
