@@ -30,14 +30,17 @@ export const deleteContact = createAsyncThunk(
   async (contactId) => {
     const response = await api.deleteContact(contactId);
     console.log("Răspuns API pentru deleteContact:", response);
-    return contactId;
+    return response.data;
   }
 );
 
 const initialState = {
-  contacts: [],
-  status: "idle", // 'idle', 'loading', 'succeeded', 'failed'
-  error: null,
+  contacts: {
+    items: [],
+    isLoading: false,
+    error: null,
+  },
+  filter: "",
 };
 
 const contactsSlice = createSlice({
@@ -47,22 +50,22 @@ const contactsSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(fetchContacts.pending, (state) => {
-        state.status = "loading";
+        state.contacts.isLoading = true;
       })
       .addCase(fetchContacts.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.contacts = action.payload;
+        state.contacts.isLoading = false;
+        state.contacts.items = action.payload;
       })
       .addCase(fetchContacts.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message;
+        state.contacts.isLoading = false;
+        state.contacts.error = action.error.message;
       })
       .addCase(addContact.fulfilled, (state, action) => {
-        state.contacts.push(action.payload);
+        state.contacts.items.push(action.payload);
       })
       .addCase(deleteContact.fulfilled, (state, action) => {
-        state.contacts = state.contacts.filter(
-          (contact) => contact.id !== action.payload
+        state.contacts.items = state.contacts.items.filter(
+          (contact) => contact.id !== action.payload.id
         );
       });
   },

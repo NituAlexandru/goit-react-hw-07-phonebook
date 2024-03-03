@@ -4,10 +4,10 @@ import ContactItem from "../ContactItem/ContactItem";
 import styles from "./ContactList.module.css";
 
 const ContactList = ({ onDeleteContact }) => {
-  const { contacts } = useSelector((state) => state.contacts); 
+  const { items: contacts } = useSelector((state) => state.contacts);
   const filter = useSelector((state) => state.filter);
+  console.log(contacts);
 
-  
   const filteredContacts =
     contacts && Array.isArray(contacts)
       ? contacts.filter((contact) =>

@@ -13,7 +13,12 @@ import {
 import { setFilter } from "../src/redux/filterSlice";
 
 const App = () => {
-  const { contacts, status } = useSelector((state) => state.contacts);
+  const {
+    items: contacts,
+    isLoading,
+    error,
+  } = useSelector((state) => state.contacts);
+  console.log(contacts);
   const filter = useSelector((state) => state.filter);
   const dispatch = useDispatch();
 
@@ -67,7 +72,7 @@ const App = () => {
       <h1 className={styles.title}>Phonebook</h1>
       <ContactForm onAddContact={handleAddContact} />
       <h2>Contacts</h2>
-      {status === "loading" && <p>Loading...</p>}
+      {isLoading && <p>Loading...</p>}
       <Filter value={filter} onChange={handleFilterChange} />
       <ContactList
         contacts={filteredContacts}
